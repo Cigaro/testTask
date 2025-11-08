@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Task } from "../types/task";
 import { TASKS_KEY } from "../services/storage";
 import { ThemeContext } from "../context/ThemeContext";
+import { syncOutboxIfOnline } from "../services/sync";
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, "TaskList">;
@@ -70,6 +71,13 @@ const TaskListScreen: React.FC<Props> = ({ navigation }) => {
         return "#000";
     }
   };
+  const forceSync = async () => {
+    const result = await syncOutboxIfOnline();
+    console.log("Sync result:", result ? "успешно" : "не удалось");
+  };
+  useEffect(() => {
+    forceSync();
+  }, []);
 
   return (
     <SafeAreaView

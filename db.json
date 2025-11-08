@@ -1,3 +1,175 @@
 {
-  "tasks": []
+  "tasks": [
+    {
+      "id": "b4c002c2-7047-4a85-9883-bb985313521c",
+      "title": "Нормально",
+      "description": "",
+      "date": "2025-11-08T20:23:26.348Z",
+      "status": "New",
+      "attachments": [],
+      "location": {
+        "lat": 55.745318230075476,
+        "lng": 37.787795439362526,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T20:23:36.038Z",
+      "notificationId": null
+    },
+    {
+      "id": "69d6d5f0-f2b0-408f-959d-90ab341ef114",
+      "title": "Привет",
+      "description": "",
+      "date": "2025-11-08T19:58:04.917Z",
+      "status": "New",
+      "attachments": [],
+      "location": {
+        "lat": 55.647800165587874,
+        "lng": 37.563948668539524,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T19:58:19.003Z",
+      "notificationId": null
+    },
+    {
+      "id": "b354ef57-9238-484f-adf5-636564975148",
+      "title": "И",
+      "description": "",
+      "date": "2025-11-08T18:07:00.000Z",
+      "status": "In Progress",
+      "attachments": [
+        {
+          "id": "676fd4b8-8338-45c2-ae6f-2f7fcf389395",
+          "uri": "file:///data/user/0/host.exp.exponent/files/676fd4b8-8338-45c2-ae6f-2f7fcf389395_IMG_20251101_171956.jpg",
+          "name": "IMG_20251101_171956.jpg",
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "location": {
+        "lat": 55.76351976838455,
+        "lng": 37.61934868991375,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T18:08:28.949Z",
+      "notificationId": null,
+      "updatedAt": "2025-11-08T18:08:35.753Z"
+    },
+    {
+      "id": "f3fa1a91-5053-4ca5-a5d0-0a368ecd53d1",
+      "title": "Bright",
+      "description": "",
+      "date": "2025-11-08T17:40:00.000Z",
+      "status": "Completed",
+      "attachments": [],
+      "location": {
+        "lat": 55.71516006199979,
+        "lng": 37.768569365143776,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T17:03:43.971Z",
+      "notificationId": "69b168c0-5982-4437-978f-b9078932f1f6",
+      "updatedAt": "2025-11-08T17:03:49.118Z"
+    },
+    {
+      "id": "bfb6a9c7-a988-4859-89f5-b41aeecb7777",
+      "title": "Flow",
+      "description": "",
+      "date": "2025-11-08T16:50:30.955Z",
+      "status": "In Progress",
+      "attachments": [
+        {
+          "id": "47bc0ad6-00dc-4202-b470-c1749cfc4669",
+          "uri": "file:///data/user/0/host.exp.exponent/files/47bc0ad6-00dc-4202-b470-c1749cfc4669_IMG_20251101_171956.jpg",
+          "name": "IMG_20251101_171956.jpg",
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "location": {
+        "lat": 55.66794286442843,
+        "lng": 37.649092711508274,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T16:50:48.890Z",
+      "notificationId": null,
+      "updatedAt": "2025-11-08T16:50:59.988Z"
+    },
+    {
+      "id": "26370c6d-fcb4-4293-b9ca-d121e10f47d8",
+      "title": "SwiftKey",
+      "description": "",
+      "date": "2025-11-08T15:36:15.035Z",
+      "status": "New",
+      "attachments": [],
+      "location": {
+        "lat": 55.750213637545286,
+        "lng": 37.70585563033819,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T15:36:21.517Z",
+      "notificationId": null
+    },
+    {
+      "id": "44e9bddd-d68f-47d7-85c7-14c5390862ee",
+      "title": "Привет",
+      "description": "",
+      "date": "2025-11-08T14:41:57.132Z",
+      "status": "Completed",
+      "attachments": [],
+      "location": {
+        "lat": 55.65167456646984,
+        "lng": 37.49711539596319,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T14:42:05.132Z",
+      "notificationId": null,
+      "updatedAt": "2025-11-08T14:42:16.436Z"
+    },
+    {
+      "id": "1516cf96-ccf5-4048-b542-2c6985681692",
+      "title": "Что",
+      "description": "",
+      "date": "2025-11-08T13:20:05.812Z",
+      "status": "In Progress",
+      "attachments": [],
+      "location": {
+        "lat": 55.73887166708176,
+        "lng": 37.62471914291382,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T13:20:15.479Z",
+      "notificationId": null,
+      "updatedAt": "2025-11-08T13:25:03.449Z"
+    },
+    {
+      "id": "320b6626-0bfe-4286-b58e-73f399950529",
+      "title": "Что",
+      "description": "",
+      "date": "2025-11-08T13:17:50.575Z",
+      "status": "Completed",
+      "attachments": [],
+      "location": {
+        "lat": 55.74361501565007,
+        "lng": 37.61342268437147,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T13:17:59.380Z",
+      "notificationId": null,
+      "updatedAt": "2025-11-08T14:01:51.195Z"
+    },
+    {
+      "id": "9a3fef3b-ff32-4884-8321-c8df2adf0939",
+      "title": "Что делаешь",
+      "description": "",
+      "date": "2025-11-08T13:17:22.070Z",
+      "status": "Completed",
+      "attachments": [],
+      "location": {
+        "lat": 55.73112162370324,
+        "lng": 37.609972693026066,
+        "address": ""
+      },
+      "createdAt": "2025-11-08T13:17:35.909Z",
+      "notificationId": null,
+      "updatedAt": "2025-11-08T14:01:00.723Z"
+    }
+  ]
 }

@@ -2,15 +2,25 @@ import React, { useEffect } from "react";
 import { Provider as PaperProvider } from "react-native-paper";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { ThemeProvider } from "./src/context/ThemeContext";
-import { syncOutboxIfOnline } from "./src/services/sync";
 import NetInfo from "@react-native-community/netinfo";
+
+import { syncOutboxIfOnline, migrateTasksToOutbox } from "./src/services/sync";
 
 export default function App() {
   useEffect(() => {
-    syncOutboxIfOnline();
+    (async () => {
+      try {
+        await migrateTasksToOutbox();
+        await syncOutboxIfOnline();
+      } catch (e) {
+        console.warn("[app] migrate/sync failed", e);
+      }
+    })();
 
     const sub = NetInfo.addEventListener((state) => {
-      if (state.isConnected) syncOutboxIfOnline();
+      if (state.isConnected) {
+        syncOutboxIfOnline();
+      }
     });
     return () => sub();
   }, []);

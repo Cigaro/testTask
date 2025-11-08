@@ -7,30 +7,35 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": ["expo-notifications"],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
+    "ios": { "supportsTablet": true },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.cigaro.taskmanager"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBGB8mb7W7pojjyuxdEYrA9KdP1YHHZ-ac"
+        }
+      },
+      "useNextNotificationsApi": true,
+      "package": "com.cigaro.taskmanager",
+      "googleServicesFile": "./google-services.json"
     },
     "extra": {
-      "eas": {
-        "projectId": "1746d7f6-f246-440d-b5a3-0bab3958080d"
-      }
+      "eas": { "projectId": "1746d7f6-f246-440d-b5a3-0bab3958080d" }
     }
   }
 }

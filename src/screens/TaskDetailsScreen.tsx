@@ -1,131 +1,218 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  Button,
-  Alert,
   TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { RouteProp, useNavigation } from "@react-navigation/native";
+import MapView, { Marker } from "react-native-maps";
+
 import { Task } from "../types/task";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { loadFromStorage, saveToStorage, TASKS_KEY } from "../services/storage";
+import { cancelTaskNotification } from "../services/notifications";
+import { pushLog } from "../services/logs";
+import { pushToOutbox } from "../services/sync";
+import { ThemeContext } from "../context/ThemeContext";
 
-type RouteProps = RouteProp<RootStackParamList, "TaskDetails">;
-type Navigation = NativeStackNavigationProp<RootStackParamList, "TaskDetails">;
-
-const TaskDetailsScreen = () => {
-  const route = useRoute<RouteProps>();
-  const navigation = useNavigation<Navigation>();
+const TaskDetailsScreen: React.FC<{ route: RouteProp<any, any> }> = ({
+  route,
+}) => {
+  const navigation = useNavigation();
+  const { theme } = useContext(ThemeContext);
+  const { taskId } = route.params || {};
   const [task, setTask] = useState<Task | null>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    loadTask();
-  }, []);
+    (async () => {
+      const tasks = (await loadFromStorage<Task[]>(TASKS_KEY)) || [];
+      const t = tasks.find((x) => x.id === taskId) || null;
+      setTask(t);
+    })();
+  }, [taskId]);
 
-  const loadTask = async () => {
-    const json = await AsyncStorage.getItem("tasks");
-    if (!json) return;
-    const tasks = JSON.parse(json);
-    const found = tasks.find((t: Task) => t.id === route.params.taskId);
-    setTask(found);
-  };
+  if (!task)
+    return (
+      <SafeAreaView style={[styles.safe, theme === "dark" && styles.darkSafe]}>
+        <Text style={{ color: theme === "dark" ? "#fff" : "#000" }}>
+          Задача не найдена
+        </Text>
+      </SafeAreaView>
+    );
 
   const updateStatus = async (newStatus: Task["status"]) => {
-    if (!task) return;
-    const json = await AsyncStorage.getItem("tasks");
-    if (!json) return;
-
-    const tasks = JSON.parse(json).map((t: Task) =>
-      t.id === task.id ? { ...t, status: newStatus } : t
-    );
-    await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
-    setTask({ ...task, status: newStatus });
-    Alert.alert("Статус обновлён", `Задача отмечена как ${newStatus}`);
+    const tasks = (await loadFromStorage<Task[]>(TASKS_KEY)) || [];
+    const idx = tasks.findIndex((t) => t.id === task.id);
+    if (idx === -1) return;
+    const old = tasks[idx];
+    tasks[idx] = {
+      ...old,
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveToStorage<Task[]>(TASKS_KEY, tasks);
+    await pushToOutbox("update", tasks[idx]);
+    await pushLog({
+      taskId: task.id,
+      action: "status_change",
+      details: { from: old.status, to: newStatus },
+    });
+    setTask(tasks[idx]);
+    Alert.alert(`Статус обновлён на`, `${newStatus}`);
   };
 
-  const deleteTask = async () => {
-    if (!task) return;
-    const json = await AsyncStorage.getItem("tasks");
-    if (!json) return;
-
-    const updated = JSON.parse(json).filter((t: Task) => t.id !== task.id);
-    await AsyncStorage.setItem("tasks", JSON.stringify(updated));
-    Alert.alert("Удалено", "Задача успешно удалена");
-    navigation.goBack();
+  const removeTask = async () => {
+    Alert.alert("Удалить", "Удалить задачу?", [
+      { text: "Отмена", style: "cancel" },
+      {
+        text: "Удалить",
+        style: "destructive",
+        onPress: async () => {
+          if (task?.notificationId)
+            await cancelTaskNotification(task.notificationId);
+          const tasks = (await loadFromStorage<Task[]>(TASKS_KEY)) || [];
+          const rest = tasks.filter((t) => t.id !== task.id);
+          await saveToStorage<Task[]>(TASKS_KEY, rest);
+          await pushToOutbox("delete", { id: task.id });
+          await pushLog({ taskId: task.id, action: "delete" });
+          navigation.goBack();
+        },
+      },
+    ]);
   };
 
-  if (!task) {
-    return (
-      <View style={styles.container}>
-        <Text>Задача не найдена</Text>
-      </View>
-    );
-  }
+  const getStatusColor = (status: Task["status"]) => {
+    switch (status) {
+      case "New":
+        return "#2563eb";
+      case "In Progress":
+        return "#f59e0b";
+      case "Completed":
+        return "#16a34a";
+      case "Cancelled":
+        return "#dc2626";
+      default:
+        return theme === "dark" ? "#fff" : "#000";
+    }
+  };
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#fff", position: "relative" }}
+      style={[
+        styles.safe,
+        theme === "dark" && styles.darkSafe,
+        styles.container,
+      ]}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>{task.title}</Text>
-        <Text style={styles.label}>Описание:</Text>
-        <Text style={styles.text}>{task.description || "—"}</Text>
+      <Text
+        style={[styles.title, { color: theme === "dark" ? "#fff" : "#000" }]}
+      >
+        {task.title}
+      </Text>
+      <Text style={{ color: theme === "dark" ? "#fff" : "#000" }}>
+        {new Date(task.date).toLocaleString()}
+      </Text>
+      <Text style={{ marginTop: 8, color: theme === "dark" ? "#fff" : "#000" }}>
+        {task.description}
+      </Text>
 
-        <Text style={styles.label}>Адрес:</Text>
-        <Text style={styles.text}>{task.location || "—"}</Text>
-
-        <Text style={styles.label}>Дата и время:</Text>
-        <Text style={styles.text}>{task.date}</Text>
-
-        <Text style={styles.label}>Статус:</Text>
-        <Text style={styles.status}>{task.status}</Text>
-
-        <View style={styles.buttons}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#facc15" }]}
-            onPress={() => updateStatus("In Progress")}
+      {task.location?.lat && task.location?.lng && (
+        <View style={{ height: 200, marginTop: 12 }}>
+          <MapView
+            style={{ flex: 1 }}
+            initialRegion={{
+              latitude: task.location.lat!,
+              longitude: task.location.lng!,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            }}
           >
-            <Text style={styles.buttonText}>In Progress</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#22c55e" }]}
-            onPress={() => updateStatus("Completed")}
-          >
-            <Text style={styles.buttonText}>Completed</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#ef4444" }]}
-            onPress={() => updateStatus("Cancelled")}
-          >
-            <Text style={styles.buttonText}>Cancelled</Text>
-          </TouchableOpacity>
+            <Marker
+              coordinate={{
+                latitude: task.location.lat!,
+                longitude: task.location.lng!,
+              }}
+              title={task.title}
+            />
+          </MapView>
         </View>
+      )}
+
+      <Text
+        style={{
+          marginTop: 12,
+          fontWeight: "700",
+          color: theme === "dark" ? "#fff" : "#000",
+        }}
+      >
+        Вложения
+      </Text>
+      {task.attachments?.map((a) => (
+        <View key={a.id} style={{ marginTop: 8 }}>
+          {a.mimeType?.startsWith("image") ? (
+            <Image
+              source={{ uri: a.uri }}
+              style={{ width: 200, height: 120 }}
+            />
+          ) : (
+            <Text style={{ color: theme === "dark" ? "#fff" : "#000" }}>
+              {a.name}
+            </Text>
+          )}
+        </View>
+      ))}
+
+      <View style={styles.buttons}>
         <TouchableOpacity
-          style={[
-            styles.actionButton,
-            { marginTop: 10, backgroundColor: "#ef4444" },
-          ]}
-          onPress={deleteTask}
+          style={[styles.button, { backgroundColor: "#facc15" }]}
+          onPress={() => updateStatus("In Progress")}
         >
-          <Text style={[styles.actionText, { color: "#fff" }]}>Удалить</Text>
+          <Text style={styles.buttonText}>In Progress</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#22c55e" }]}
+          onPress={() => updateStatus("Completed")}
+        >
+          <Text style={styles.buttonText}>Completed</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#ef4444" }]}
+          onPress={() => updateStatus("Cancelled")}
+        >
+          <Text style={styles.buttonText}>Cancelled</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+        style={[
+          styles.actionButton,
+          {
+            backgroundColor: "#ef4444",
+            marginBottom: insets.bottom > 0 ? insets.bottom : 12,
+          },
+        ]}
+        onPress={removeTask}
+      >
+        <Text style={[styles.actionText, { color: "#fff" }]}>Удалить</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 22, fontWeight: "700", marginBottom: 16 },
-  label: { fontWeight: "600", marginTop: 8 },
-  text: { fontSize: 16 },
-  status: { fontSize: 16, marginVertical: 8, color: "#2563eb" },
+  safe: { flex: 1, backgroundColor: "#fff" },
+  darkSafe: { backgroundColor: "#111" },
+  container: { padding: 16, position: "relative" },
+  title: { fontSize: 20, fontWeight: "700" },
   buttons: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -141,10 +228,9 @@ const styles = StyleSheet.create({
   buttonText: { color: "#fff", fontWeight: "600" },
   actionButton: {
     position: "absolute",
-    bottom: 20,
+    bottom: 0,
     left: 16,
     right: 16,
-    backgroundColor: "#2563eb",
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: "center",

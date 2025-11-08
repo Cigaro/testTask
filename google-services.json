@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "173146826849",
+    "project_id": "taskmanager-5197a",
+    "storage_bucket": "taskmanager-5197a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173146826849:android:5a50537023d96af5ad2220",
+        "android_client_info": {
+          "package_name": "com.cigaro.taskmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCD8kuh1sVxVIZZq3ie_DKIMEC2Lf99p2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
